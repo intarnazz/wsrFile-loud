@@ -14,7 +14,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\File\FileController;
 
+// Juicy chicken (1).doc
 
 Route::post("/registration", [UserController::class, 'reg']);
 Route::post("/login", [UserController::class, 'login']);
+Route::post("/logout", [UserController::class, 'logout']);
+Route::post("/addFile", [FileController::class, 'add']);
+Route::patch("/addFile/{file_id}", [FileController::class, 'change']);

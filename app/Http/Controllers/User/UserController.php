@@ -69,12 +69,6 @@ class UserController extends Controller
       "message" => [],
       "token" => '',
     ];
-    // $token = $request->header('Authorization');
-    // if (!$token) {
-    //   $res["message"][] = "Неверный token";
-    //   return response()->json($res)->setStatusCode(400);
-    // }
-    // $token = str_replace('Bearer ', '', $token);
     $user = User::all()
       ->where('email', $request->email)
       ->where('password', $request->password)
@@ -85,7 +79,7 @@ class UserController extends Controller
     }
 
     if (!$res["message"]) {
-      $user->remember_token = $user->createToken("remember_token")->plainTextToken;
+      $user->remember_token = $user->createToken('remember_token')->plainTextToken;
       $user->save();
 
       $res = [
@@ -96,5 +90,37 @@ class UserController extends Controller
       return response()->json($res)->setStatusCode(200);
     }
     return response()->json($res)->setStatusCode(400);
+  }
+  public function logout(Request $request)
+  {
+    $res = [
+      "status" => false,
+      "message" => [],
+      "token" => '',
+    ];
+    $token = $request->header("Authorization");
+    $token = str_replace('Bearer ', '', $token);
+    if (!$token) {
+      $res["message"][] = "Login failed";
+      return response()->json($res)->setStatusCode(404);
+    }
+
+    $user = User::all()
+      ->where('remember_token', $token)
+      ->first();
+    if (!$user) {
+      $res["message"][] = "Login failed";
+      return response()->json($res)->setStatusCode(404);
+    }
+    
+    $user->remember_token = '';
+    $user->save();
+
+    $res = [
+      "status" => true,
+      "message" => "success",
+      "token" => $user->remember_token,
+    ];
+    return response()->json($res)->setStatusCode(200);
   }
 }
